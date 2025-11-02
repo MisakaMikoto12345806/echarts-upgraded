@@ -16,7 +16,7 @@ def create_app():
 
     # Configuration
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-change-this')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'mysql+pymysql://username:password@localhost/echarts_db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///app.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Initialize extensions

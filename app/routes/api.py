@@ -1,7 +1,9 @@
 from app import db
 from app.models import School, Subject, SchoolSubject, CountryStats
-from flask import Blueprint, jsonify, render_template
+from flask import Blueprint, jsonify, render_template, request
 import json
+import os
+import requests
 
 main = Blueprint('main', __name__)
 
@@ -175,5 +177,61 @@ def basic_chart_data():
     }
     
     return jsonify(result)
+
+@main.route('/api/ai-chat', methods=['POST'])
+def ai_chat():
+    """API endpoint for AI chat functionality (proxies to Zhipu AI API)"""
+    try:
+        data = request.json
+        user_message = data.get('message', '')
+        system_prompt = data.get('system_prompt', '你是一个有用的AI助手，能够回答问题并提供帮助。')
+        
+        if not user_message:
+            return jsonify({'error': 'Message is required'}), 400
+        
+        # Get API key from environment variables
+        api_key = os.getenv('ZHIPU_API_KEY')
+        
+        if not api_key:
+            return jsonify({'error': 'API key not configured'}), 500
+        
+        # Prepare the request to Zhipu AI API
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {api_key}'
+        }
+        
+        payload = {
+            'model': 'glm-4-flash',  # 使用GLM-4-Flash模型
+            'messages': [
+                {
+                    'role': 'system',
+                    'content': system_prompt
+                },
+                {
+                    'role': 'user',
+                    'content': user_message
+                }
+            ],
+            'stream': False
+        }
+        
+        # Make the request to Zhipu AI API
+        response = requests.post(
+            'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+            headers=headers,
+            json=payload
+        )
+        
+        if response.status_code != 200:
+            return jsonify({'error': f'Zhipu AI API error: {response.status_code}, {response.text}'}), 500
+        
+        result = response.json()
+        ai_response = result.get('choices', [{}])[0].get('message', {}).get('content', '没有收到AI的回应。')
+        
+        return jsonify({'response': ai_response})
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Add more routes as needed

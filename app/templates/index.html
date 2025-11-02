@@ -10,6 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- AI Chat Component CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-chat.css') }}">
     <style>
         .chart-container {
             background: rgba(255, 255, 255, 0.04);
@@ -778,5 +780,7 @@
             }
         }
     </script>
+    <!-- AI Chat Component JS -->
+    <script src="{{ url_for('static', filename='js/ai-chat.js') }}"></script>
 </body>
 </html>
