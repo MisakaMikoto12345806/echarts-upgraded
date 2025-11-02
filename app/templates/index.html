@@ -214,23 +214,39 @@
             const myChart = echarts.init(chartDom);
             
             try {
+                // 使用静态数据作为示例，如果需要从API获取数据，请取消下面的注释并注释掉静态数据
+                /* 
                 const response = await fetch('/api/schools-by-country');
                 const data = await response.json();
+                */
+                
+                // 静态数据 - 你提供的正确样式形式
+                const data = [
+                    { value: 79, name: '美国' },
+                    { value: 15, name: '中国' },
+                    { value: 1, name: '加拿大' },
+                    { value: 73, name: '英国' },
+                    { value: 1, name: '印度' },
+                    { value: 10, name: '日本' },
+                    { value: 2, name: '韩国' },
+                    { value: 1, name: '阿联酋' },
+                    { value: 2, name: '新加坡' },
+                    { value: 1, name: '瑞士' }
+                ];
                 
                 const option = {
                     title: {
                         text: '共统计排名前180所',
+                        subtext: '',
                         left: 'center',
-                        top: 1,
-                        textStyle: { color: '#fff' }
+                        top:1
                     },
                     tooltip: {
                         trigger: 'item'
                     },
                     legend: {
                         orient: 'vertical',
-                        left: 'left',
-                        textStyle: { color: '#fff' }
+                        left: 'left'
                     },
                     series: [
                         {
