@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全球高中新颖洞察 - 数据仪表盘</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .chart-container {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(25, 186, 139, 0.17);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .chart-container::before,
+        .chart-container::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border: 2px solid #02a6b5;
+        }
+        .chart-container::before {
+            top: 0;
+            left: 0;
+            border-right: none;
+            border-bottom: none;
+        }
+        .chart-container::after {
+            top: 0;
+            right: 0;
+            border-left: none;
+            border-bottom: none;
+        }
+        .chart-container .bottom-corner::before,
+        .chart-container .bottom-corner::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border: 2px solid #02a6b5;
+        }
+        .chart-container .bottom-corner::before {
+            bottom: 0;
+            left: 0;
+            border-right: none;
+            border-top: none;
+        }
+        .chart-container .bottom-corner::after {
+            bottom: 0;
+            right: 0;
+            border-left: none;
+            border-top: none;
+        }
+        .chart-container:hover {
+            transform: translateY(-5px);
+        }
+        .header-bg {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230a4c6d"/><path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="%230d5e85"/></svg>');
+            background-size: cover;
+            background-position: center;
+        }
+        .chart-title {
+            color: #00e5ff;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="header-bg py-4 px-6 shadow-lg">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-center mb-2 md:mb-0 text-white">
+                <i class="fas fa-chart-line mr-2 text-cyan-400"></i>全球高中新颖洞察
+            </h1>
+            <div class="showTime text-lg bg-black bg-opacity-40 px-4 py-2 rounded-lg border border-cyan-600">
+                当前时间: <span id="current-time" class="text-cyan-300">加载中...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- 左列 -->
+            <div class="space-y-6">
+                <!-- 国家饼图 -->
+                <div class="chart-container p-4">
+                    <div class="bottom-corner"></div>
+                    <h2 class="text-xl font-semibold text-center mb-4 chart-title">
+                        <i class="fas fa-globe-asia mr-2"></i>各国学校数量
+                    </h2>
+                    <div id="country-pie-chart" class="h-80"></div>
+                </div>
+                
+                <!-- 气泡图 -->
+                <div class="chart-container p-4">
+                    <div class="bottom-corner"></div>
+                    <h2 class="text-xl font-semibold text-center mb-4 chart-title">
+                        <i class="fas fa-bullseye mr-2"></i>学科开设情况统计
+                    </h2>
+                    <div id="bubble-chart" class="h-96"></div>
+                </div>
+            </div>
+            
+            <!-- 中列 - 信息展示区域 -->
+            <div class="flex flex-col space-y-6">
+                <div class="chart-container p-4 flex items-center justify-center">
+                    <div class="bottom-corner"></div>
+                    <div class="text-center">
+                        <i class="fas fa-school text-6xl text-cyan-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-white">学校信息</h3>
+                        <p class="text-gray-300 mt-4">交互式数据仪表盘</p>
+                        <div class="mt-6 text-sm text-gray-400">
+                            <p><i class="fas fa-database mr-2 text-cyan-400"></i>后端: Flask + SQLite</p>
+                            <p><i class="fas fa-chart-bar mr-2 text-cyan-400"></i>图表: ECharts</p>
+                            <p><i class="fas fa-paint-brush mr-2 text-cyan-400"></i>样式: Tailwind CSS</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container p-4">
+                    <div class="bottom-corner"></div>
+                    <h3 class="text-lg font-semibold text-center mb-4 chart-title">
+                        <i class="fas fa-info-circle mr-2"></i>数据说明
+                    </h3>
+                    <div class="text-sm text-gray-300">
+                        <p class="mb-2"><i class="fas fa-check-circle text-green-400 mr-2"></i>数据更新至2023年</p>
+                        <p class="mb-2"><i class="fas fa-check-circle text-green-400 mr-2"></i>数据来源：全球高中统计</p>
+                        <p><i class="fas fa-check-circle text-green-400 mr-2"></i>统计范围：排名前180所学校</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右列 -->
+            <div class="space-y-6">
+                <!-- 学费柱状图 -->
+                <div class="chart-container p-4">
+                    <div class="bottom-corner"></div>
+                    <h2 class="text-xl font-semibold text-center mb-4 chart-title">
+                        <i class="fas fa-money-bill-wave mr-2"></i>学费统计情况
+                    </h2>
+                    <div id="tuition-bar-chart" class="h-80"></div>
+                </div>
+                
+                <!-- 时间线折线图 -->
+                <div class="chart-container p-4">
+                    <div class="bottom-corner"></div>
+                    <h2 class="text-xl font-semibold text-center mb-4 chart-title">
+                        <i class="fas fa-chart-line mr-2"></i>学校存在时间统计
+                    </h2>
+                    <div id="timeline-chart" class="h-80"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 基础图表行 -->
+        <div class="chart-container p-6 mt-6">
+            <div class="bottom-corner"></div>
+            <h2 class="text-2xl font-semibold text-center mb-6 chart-title">
+                <i class="fas fa-chart-bar mr-2"></i>基础图表示例
+            </h2>
+            <div id="basic-chart" class="h-80"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 py-4 text-center text-gray-400">
+        <p>全球高中洞察仪表盘 &copy; 2023 | 使用Flask, SQLite & ECharts构建</p>
+        <p class="mt-1 text-sm">Designed with Tailwind CSS for responsive layout</p>
+    </footer>
+
+    <script>
+        // Initialize all charts when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all the charts
+            initCountryPieChart();
+            initBubbleChart();
+            initTuitionBarChart();
+            initTimelineChart();
+            initBasicChart();
+            
+            // Initialize the clock
+            updateClock();
+            setInterval(updateClock, 1000);
+        });
+        
+        // Clock functionality
+        function updateClock() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const mt = now.getMonth() + 1;
+            const day = now.getDate();
+            const h = now.getHours();
+            const m = now.getMinutes();
+            const s = now.getSeconds();
+            const timeString = `${y}年${mt}月${day}日 ${h}时${m}分${s}秒`;
+            document.getElementById('current-time').textContent = timeString;
+        }
+        
+        // Initialize Country Pie Chart
+        async function initCountryPieChart() {
+            const chartDom = document.getElementById('country-pie-chart');
+            const myChart = echarts.init(chartDom);
+            
+            try {
+                const response = await fetch('/api/schools-by-country');
+                const data = await response.json();
+                
+                const option = {
+                    title: {
+                        text: '共统计排名前180所',
+                        left: 'center',
+                        top: 1,
+                        textStyle: { color: '#fff' }
+                    },
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left',
+                        textStyle: { color: '#fff' }
+                    },
+                    series: [
+                        {
+                            name: '地区学校数量',
+                            type: 'pie',
+                            radius: '50%',
+                            data: data,
+                            emphasis: {
+                                itemStyle: {
+                                    shadowBlur: 12,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                            }
+                        }
+                    ]
+                };
+                
+                myChart.setOption(option);
+            } catch (error) {
+                console.error('加载国家数据时出错:', error);
+                
+                // 显示错误图表
+                const option = {
+                    title: {
+                        text: '数据加载错误',
+                        subtext: '请检查API连接',
+                        left: 'center',
+                        textStyle: { color: '#fff' }
+                    }
+                };
+                
+                myChart.setOption(option);
+            }
+        }
+        
+        // Initialize Bubble Chart
+        async function initBubbleChart() {
+            const chartDom = document.getElementById('bubble-chart');
+            const myChart = echarts.init(chartDom);
+            
+            try {
+                const response = await fetch('/api/subject-stats');
+                const data = await response.json();
+                
+                const dataBJ = data.dataBJ;
+                const dataGZ = data.dataGZ;
+                const dataSH = data.dataSH;
+                
+                const schema = [
+                    { name: 'date', index: 0, text: '日' },
+                    { name: 'AQIindex', index: 1, text: 'AQI指数' },
+                    { name: 'PM25', index: 2, text: 'PM2.5' },
+                    { name: 'PM10', index: 3, text: 'PM10' },
+                    { name: 'CO', index: 4, text: '一氧化碳（CO）' },
+                    { name: 'NO2', index: 5, text: '二氧化氮（NO2）' },
+                    { name: 'SO2', index: 6, text: '二氧化硫（SO2）' }
+                ];
+                
+                const itemStyle = {
+                    opacity: 0.8,
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowOffsetY: 0,
+                    shadowColor: 'rgba(0,0,0,0.3)'
+                };
+                
+                const option = {
+                    color: ['#dd4444', '#fec42c', '#80F1BE'],
+                    legend: {
+                        top: 10,
+                        data: ['北京', '上海', '广州'],
+                        textStyle: { 
+                            color: '#fff',
+                            fontSize: 14
+                        }
+                    },
+                    grid: {
+                        left: '10%',
+                        right: 150,
+                        top: '18%',
+                        bottom: '15%'
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(255,255,255,0.7)',
+                        textStyle: { color: '#000' },
+                        formatter: function (param) {
+                            var value = param.value;
+                            return '<div style="border-bottom: 1px solid rgba(255,255,255,.3); font-size: 14px;padding-bottom: 7px;margin-bottom: 7px">' +
+                                param.seriesName + ' ' + value[0] + '日：' +
+                                value[7] +
+                                '</div>' +
+                                schema[1].text + '：' + value[1] + '<br>' +
+                                schema[2].text + '：' + value[2] + '<br>' +
+                                schema[3].text + '：' + value[3] + '<br>' +
+                                schema[4].text + '：' + value[4] + '<br>' +
+                                schema[5].text + '：' + value[5] + '<br>' +
+                                schema[6].text + '：' + value[6] + '<br>';
+                        }
+                    },
+                    xAxis: {
+                        type: 'value',
+                        name: '日期',
+                        nameGap: 16,
+                        nameTextStyle: { 
+                            color: '#fff',
+                            fontSize: 14
+                        },
+                        max: 31,
+                        splitLine: { show: false }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: 'AQI指数',
+                        nameLocation: 'end',
+                        nameGap: 20,
+                        nameTextStyle: { 
+                            color: '#fff',
+                            fontSize: 14
+                        },
+                        splitLine: { show: false }
+                    },
+                    dataZoom: [
+                        {
+                            type: 'slider',
+                            show: true,
+                            xAxisIndex: [0],
+                            start: 0,
+                            end: 100,
+                            bottom: '5%',
+                            height: 20
+                        },
+                        {
+                            type: 'slider',
+                            show: true,
+                            yAxisIndex: [0],
+                            start: 0,
+                            end: 100,
+                            right: 120,
+                            width: 20
+                        },
+                        {
+                            type: 'inside',
+                            xAxisIndex: [0],
+                            start: 0,
+                            end: 100
+                        },
+                        {
+                            type: 'inside',
+                            yAxisIndex: [0],
+                            start: 0,
+                            end: 100
+                        }
+                    ],
+                    visualMap: [
+                        {
+                            left: 'right',
+                            top: '10%',
+                            dimension: 2,
+                            min: 0,
+                            max: 250,
+                            itemWidth: 30,
+                            itemHeight: 120,
+                            calculable: true,
+                            precision: 0.1,
+                            text: ['圆形大小：PM2.5'],
+                            textGap: 30,
+                            inRange: { symbolSize: [10, 70] },
+                            outOfRange: { symbolSize: [10, 70], color: ['rgba(255,255,255,0.4)'] },
+                            controller: { inRange: { color: ['#c23531'] } }
+                        },
+                        {
+                            left: 'right',
+                            bottom: '5%',
+                            dimension: 6,
+                            min: 0,
+                            max: 50,
+                            itemHeight: 120,
+                            text: ['明暗：二氧化硫'],
+                            textGap: 30,
+                            inRange: { colorLightness: [0.9, 0.5] },
+                            outOfRange: { color: ['rgba(255,255,255,0.4)'] },
+                            controller: { inRange: { color: ['#c23531'] } }
+                        }
+                    ],
+                    series: [
+                        {
+                            name: '北京',
+                            type: 'scatter',
+                            itemStyle: itemStyle,
+                            data: dataBJ
+                        },
+                        {
+                            name: '上海',
+                            type: 'scatter',
+                            itemStyle: itemStyle,
+                            data: dataSH
+                        },
+                        {
+                            name: '广州',
+                            type: 'scatter',
+                            itemStyle: itemStyle,
+                            data: dataGZ
+                        }
+                    ]
+                };
+                
+                myChart.setOption(option);
+            } catch (error) {
+                console.error('加载气泡图数据时出错:', error);
+                
+                // 显示错误图表
+                const option = {
+                    title: {
+                        text: '数据加载错误',
+                        subtext: '请检查API连接',
+                        left: 'center',
+                        textStyle: { color: '#fff' }
+                    }
+                };
+                
+                myChart.setOption(option);
+            }
+        }
+        
+        // Initialize Tuition Bar Chart
+        async function initTuitionBarChart() {
+            const chartDom = document.getElementById('tuition-bar-chart');
+            const myChart = echarts.init(chartDom);
+            
+            try {
+                const response = await fetch('/api/tuition-stats');
+                const data = await response.json();
+                
+                const option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow',
+                            label: {
+                                show: true
+                            }
+                        }
+                    },
+                    toolbox: {
+                        show: true,
+                        feature: {
+                            mark: { show: true },
+                            dataView: { show: true, readOnly: false },
+                            magicType: { show: true, type: ['line', 'bar'] },
+                            restore: { show: true },
+                            saveAsImage: { show: true }
+                        }
+                    },
+                    legend: {
+                        data: ['2011年预算', '2012年预算'],
+                        itemGap: 5,
+                        textStyle: { color: '#fff' }
+                    },
+                    grid: {
+                        top: '12%',
+                        left: '1%',
+                        right: '10%',
+                        containLabel: true
+                    },
+                    xAxis: [
+                        {
+                            type: 'category',
+                            data: data.names,
+                            axisTick: { alignWithLabel: true },
+                            axisLabel: { 
+                                color: '#fff',
+                                rotate: 45,
+                                fontSize: 11
+                            }
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value',
+                            name: '预算 (百万美元)',
+                            axisLabel: { 
+                                color: '#fff',
+                                formatter: function (a) {
+                                    a = +a;
+                                    return isFinite(a) ? echarts.format.addCommas(+a / 1000) : '';
+                                }
+                            }
+                        }
+                    ],
+                    dataZoom: [
+                        {
+                            show: true,
+                            start: 94,
+                            end: 100
+                        },
+                        {
+                            type: 'inside',
+                            start: 94,
+                            end: 100
+                        },
+                        {
+                            show: true,
+                            yAxisIndex: 0,
+                            filterMode: 'empty',
+                            width: 30,
+                            height: '80%',
+                            showDataShadow: false,
+                            left: '93%'
+                        }
+                    ],
+                    series: [
+                        {
+                            name: '2011年预算',
+                            type: 'bar',
+                            data: data.budget2011List
+                        },
+                        {
+                            name: '2012年预算',
+                            type: 'bar',
+                            data: data.budget2012List
+                        }
+                    ]
+                };
+                
+                myChart.setOption(option);
+            } catch (error) {
+                console.error('加载学费数据时出错:', error);
+                
+                // 显示错误图表
+                const option = {
+                    title: {
+                        text: '数据加载错误',
+                        subtext: '请检查API连接',
+                        left: 'center',
+                        textStyle: { color: '#fff' }
+                    }
+                };
+                
+                myChart.setOption(option);
+            }
+        }
+        
+        // Initialize Timeline Line Chart
+        async function initTimelineChart() {
+            const chartDom = document.getElementById('timeline-chart');
+            const myChart = echarts.init(chartDom);
+            
+            try {
+                const response = await fetch('/api/school-timeline');
+                const data = await response.json();
+                
+                const option = {
+                    title: {
+                        text: '',
+                        subtext: '',
+                        left: 'center',
+                        textStyle: {
+                            fontSize: 18
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'cross',
+                            crossStyle: {
+                                color: '#999'
+                            }
+                        },
+                        formatter: function(params) {
+                            let result = `${params[0].name}年<br/>`;
+                            params.forEach(param => {
+                                const marker = `<span style="display:inline-block;margin-right:5px;border-radius:50%;width:10px;height:10px;background-color:${param.color}"></span>`;
+                                if (param.seriesName === '年度成立数量') {
+                                    result += `${marker}${param.seriesName}: ${param.value}所<br/>`;
+                                } else {
+                                    result += `${marker}${param.seriesName}: ${param.value}所<br/>`;
+                                }
+                            });
+                            return result;
+                        }
+                    },
+                    legend: {
+                        data: ['年度成立数量', '累积学校数量'],
+                        top: 10,
+                        textStyle: { color: '#fff' }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '12%',
+                        top: '20%',
+                        containLabel: true
+                    },
+                    xAxis: [
+                        {
+                            type: 'category',
+                            data: data.years,
+                            axisPointer: {
+                                type: 'shadow'
+                            },
+                            axisLabel: {
+                                interval: Math.ceil(data.years.length / 10) - 1, // 控制标签显示密度
+                                rotate: 45, // 倾斜角度
+                                color: '#fff'
+                            }
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value',
+                            name: '',
+                            min: 0,
+                            axisLabel: {
+                                formatter: '{value} 所',
+                                color: '#fff'
+                            }
+                        },
+                        {
+                            type: 'value',
+                            name: '',
+                            min: 0,
+                            axisLabel: {
+                                formatter: '{value} 所',
+                                color: '#fff'
+                            }
+                        }
+                    ],
+                    dataZoom: [
+                        {
+                            type: 'slider',
+                            show: true,
+                            xAxisIndex: [0],
+                            start: 0,
+                            end: 100,
+                            bottom: '5%'
+                        },
+                        {
+                            type: 'inside',
+                            xAxisIndex: [0],
+                            start: 0,
+                            end: 100
+                        }
+                    ],
+                    series: [
+                        {
+                            name: '年度成立数量',
+                            type: 'bar',
+                            data: data.counts,
+                            itemStyle: {
+                                color: '#5470c6'
+                            },
+                            emphasis: {
+                                focus: 'series'
+                            }
+                        },
+                        {
+                            name: '累积学校数量',
+                            type: 'line',
+                            yAxisIndex: 1,
+                            data: data.cumulative,
+                            itemStyle: {
+                                color: '#ee6666'
+                            },
+                            lineStyle: {
+                                width: 3
+                            },
+                            symbol: 'circle',
+                            symbolSize: 6,
+                            emphasis: {
+                                focus: 'series'
+                            }
+                        }
+                    ]
+                };
+                
+                myChart.setOption(option);
+            } catch (error) {
+                console.error('加载时间线数据时出错:', error);
+                
+                // 显示错误图表
+                const option = {
+                    title: {
+                        text: '数据加载错误',
+                        subtext: '请检查API连接',
+                        left: 'center',
+                        textStyle: { color: '#fff' }
+                    }
+                };
+                
+                myChart.setOption(option);
+            }
+        }
+        
+        // Initialize Basic Chart
+        async function initBasicChart() {
+            const chartDom = document.getElementById('basic-chart');
+            const myChart = echarts.init(chartDom);
+            
+            try {
+                const response = await fetch('/api/basic-chart-data');
+                const data = await response.json();
+                
+                const option = {
+                    title: {
+                        text: 'ECharts 入门示例',
+                        left: 'center',
+                        textStyle: { color: '#fff' }
+                    },
+                    tooltip: {},
+                    legend: {
+                        data: ['销量'],
+                        textStyle: { color: '#fff' }
+                    },
+                    xAxis: {
+                        data: data.categories,
+                        axisLabel: { color: '#fff' }
+                    },
+                    yAxis: {
+                        axisLabel: { color: '#fff' }
+                    },
+                    series: [
+                        {
+                            name: '销量',
+                            type: 'bar',
+                            data: data.values,
+                            itemStyle: { color: '#73c0de' }
+                        }
+                    ]
+                };
+                
+                myChart.setOption(option);
+            } catch (error) {
+                console.error('加载基础图表数据时出错:', error);
+                
+                // 显示错误图表
+                const option = {
+                    title: {
+                        text: '数据加载错误',
+                        subtext: '请检查API连接',
+                        left: 'center',
+                        textStyle: { color: '#fff' }
+                    }
+                };
+                
+                myChart.setOption(option);
+            }
+        }
+    </script>
+</body>
+</html>
