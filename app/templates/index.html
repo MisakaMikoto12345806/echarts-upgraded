@@ -164,14 +164,7 @@
             </div>
         </div>
         
-        <!-- 基础图表行 -->
-        <div class="chart-container p-6 mt-6">
-            <div class="bottom-corner"></div>
-            <h2 class="text-2xl font-semibold text-center mb-6 chart-title">
-                <i class="fas fa-chart-bar mr-2"></i>基础图表示例
-            </h2>
-            <div id="basic-chart" class="h-80"></div>
-        </div>
+
     </main>
 
     <!-- Footer -->
@@ -188,7 +181,6 @@
             initBubbleChart();
             initTuitionBarChart();
             initTimelineChart();
-            initBasicChart();
             
             // Initialize the clock
             updateClock();
@@ -741,60 +733,7 @@
             }
         }
         
-        // Initialize Basic Chart
-        async function initBasicChart() {
-            const chartDom = document.getElementById('basic-chart');
-            const myChart = echarts.init(chartDom);
-            
-            try {
-                const response = await fetch('/api/basic-chart-data');
-                const data = await response.json();
-                
-                const option = {
-                    title: {
-                        text: 'ECharts 入门示例',
-                        left: 'center',
-                        textStyle: { color: '#fff' }
-                    },
-                    tooltip: {},
-                    legend: {
-                        data: ['销量'],
-                        textStyle: { color: '#fff' }
-                    },
-                    xAxis: {
-                        data: data.categories,
-                        axisLabel: { color: '#fff' }
-                    },
-                    yAxis: {
-                        axisLabel: { color: '#fff' }
-                    },
-                    series: [
-                        {
-                            name: '销量',
-                            type: 'bar',
-                            data: data.values,
-                            itemStyle: { color: '#73c0de' }
-                        }
-                    ]
-                };
-                
-                myChart.setOption(option);
-            } catch (error) {
-                console.error('加载基础图表数据时出错:', error);
-                
-                // 显示错误图表
-                const option = {
-                    title: {
-                        text: '数据加载错误',
-                        subtext: '请检查API连接',
-                        left: 'center',
-                        textStyle: { color: '#fff' }
-                    }
-                };
-                
-                myChart.setOption(option);
-            }
-        }
+
     </script>
     <!-- AI Chat Component JS -->
     <script src="{{ url_for('static', filename='js/ai-chat.js') }}"></script>
