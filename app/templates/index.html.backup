@@ -92,20 +92,20 @@
 
     <!-- Main Content -->
     <main class="flex-grow px-0 py-6">
-        <div class="flex flex-col lg:flex-row justify-between items-start gap-8 px-6">
-            <!-- 左侧组: 各国学校数量、学科开设情况统计 -->
-            <div class="w-full lg:w-2/5 flex flex-col h-full">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 mb-6 h-auto">
+            <!-- 左列: 各国学校数量、学科开设情况统计 -->
+            <div class="flex flex-col h-full">
                 <!-- 各国学校数量 -->
-                <div class="chart-container p-4 flex-grow mb-6">
+                <div class="chart-container p-4 flex-grow">
                     <div class="bottom-corner"></div>
                     <h2 class="text-xl font-semibold text-center mb-4 chart-title">
                         <i class="fas fa-globe-asia mr-2"></i>各国学校数量
                     </h2>
                     <div id="country-pie-chart" class="h-80"></div>
                 </div>
-
+                
                 <!-- 学科开设情况统计 -->
-                <div class="chart-container p-4 flex-grow">
+                <div class="chart-container p-4 flex-grow mt-6">
                     <div class="bottom-corner"></div>
                     <h2 class="text-xl font-semibold text-center mb-4 chart-title">
                         <i class="fas fa-bullseye mr-2"></i>学科开设情况统计
@@ -114,24 +114,24 @@
                 </div>
             </div>
 
-            <!-- 右侧组: 学费统计情况、学校存在时间统计 -->
-            <div class="w-full lg:w-2/5 flex flex-col h-full">
+            <!-- 右列: 学费统计情况、学校存在时间统计 -->
+            <div class="flex flex-col h-full">
                 <!-- 学费统计情况 -->
-                <div class="chart-container p-4 flex-grow mb-6">
+                <div class="chart-container p-4 flex-grow">
                     <div class="bottom-corner"></div>
                     <h2 class="text-xl font-semibold text-center mb-4 chart-title">
                         <i class="fas fa-money-bill-wave mr-2"></i>学费统计情况
                     </h2>
                     <div id="tuition-bar-chart" class="h-80"></div>
                 </div>
-
+                
                 <!-- 学校存在时间统计 -->
-                <div class="chart-container p-4 flex-grow">
+                <div class="chart-container p-4 flex-grow mt-6">
                     <div class="bottom-corner"></div>
                     <h2 class="text-xl font-semibold text-center mb-4 chart-title">
                         <i class="fas fa-chart-line mr-2"></i>学校存在时间统计
                     </h2>
-                    <div id="timeline-chart" class="h-96"></div>
+                    <div id="timeline-chart" class="h-80"></div>
                 </div>
             </div>
         </div>
