@@ -8,6 +8,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- ECharts -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- Leaflet CSS and JS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/leaflet.css') }}">
+    <script src="{{ url_for('static', filename='js/leaflet.js') }}"></script>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- AI Chat Component CSS -->
@@ -21,6 +24,22 @@
             transition: transform 0.3s ease;
             position: relative;
             overflow: hidden;
+        }
+        
+        #world-map {
+            width: 100%;
+            height: 100%;
+            min-height: 200px;
+            z-index: 1;
+        }
+        
+        .leaflet-container {
+            background: rgba(255, 255, 255, 0.1);
+            height: 100%;
+        }
+        
+        .chart-container .leaflet-container {
+            position: relative;
         }
         .chart-container::before,
         .chart-container::after {
@@ -94,14 +113,14 @@
     <main class="flex-grow px-4 py-6">
         <div class="flex flex-col md:flex-col lg:flex-row justify-center items-center lg:justify-between lg:items-start gap-6 lg:gap-8 px-4">
             <!-- 左侧组: 各国学校数量、学科开设情况统计 -->
-            <div class="w-full lg:w-2/5 flex flex-col h-full mb-6 lg:mb-0">
+            <div class="w-full md:w-full lg:w-1/3 flex flex-col h-full mb-6 lg:mb-0">
                 <!-- 各国学校数量 -->
                 <div class="chart-container p-3 md:p-4 flex-grow mb-6">
                     <div class="bottom-corner"></div>
                     <h2 class="text-lg md:text-xl font-semibold text-center mb-3 md:mb-4 chart-title">
                         <i class="fas fa-globe-asia mr-1 md:mr-2"></i>各国学校数量
                     </h2>
-                    <div id="country-pie-chart" class="h-48 md:h-56"></div>
+                    <div id="country-pie-chart" class="h-48 md:h-52"></div>
                 </div>
 
                 <!-- 学科开设情况统计 -->
@@ -110,19 +129,30 @@
                     <h2 class="text-lg md:text-xl font-semibold text-center mb-3 md:mb-4 chart-title">
                         <i class="fas fa-bullseye mr-1 md:mr-2"></i>学科开设情况统计
                     </h2>
-                    <div id="bubble-chart" class="h-56 md:h-64"></div>
+                    <div id="bubble-chart" class="h-52 md:h-56"></div>
+                </div>
+            </div>
+
+            <!-- 中间组: 世界地图 -->
+            <div class="w-full md:w-full lg:w-1/3 flex flex-col h-full mb-6 lg:mb-0">
+                <div class="chart-container p-3 md:p-4 flex-grow">
+                    <div class="bottom-corner"></div>
+                    <h2 class="text-lg md:text-xl font-semibold text-center mb-3 md:mb-4 chart-title">
+                        <i class="fas fa-map mr-1 md:mr-2"></i>世界学校分布地图
+                    </h2>
+                    <div id="world-map" class="h-80 md:h-96"></div>
                 </div>
             </div>
 
             <!-- 右侧组: 学费统计情况、学校存在时间统计 -->
-            <div class="w-full lg:w-2/5 flex flex-col h-full">
+            <div class="w-full md:w-full lg:w-1/3 flex flex-col h-full">
                 <!-- 学费统计情况 -->
                 <div class="chart-container p-3 md:p-4 flex-grow mb-6">
                     <div class="bottom-corner"></div>
                     <h2 class="text-lg md:text-xl font-semibold text-center mb-3 md:mb-4 chart-title">
                         <i class="fas fa-money-bill-wave mr-1 md:mr-2"></i>学费统计情况
                     </h2>
-                    <div id="tuition-bar-chart" class="h-48 md:h-56"></div>
+                    <div id="tuition-bar-chart" class="h-48 md:h-52"></div>
                 </div>
 
                 <!-- 学校存在时间统计 -->
@@ -131,7 +161,7 @@
                     <h2 class="text-lg md:text-xl font-semibold text-center mb-3 md:mb-4 chart-title">
                         <i class="fas fa-chart-line mr-1 md:mr-2"></i>学校存在时间统计
                     </h2>
-                    <div id="timeline-chart" class="h-56 md:h-64"></div>
+                    <div id="timeline-chart" class="h-52 md:h-56"></div>
                 </div>
             </div>
         </div>
@@ -151,6 +181,7 @@
             initBubbleChart();
             initTuitionBarChart();
             initTimelineChart();
+            initWorldMap(); // Initialize the world map
 
             // Initialize the clock
             updateClock();
@@ -701,6 +732,79 @@
 
                 myChart.setOption(option);
             }
+        }
+
+        // Initialize World Map
+        function initWorldMap() {
+            // Wait a bit to ensure the DOM is fully loaded
+            setTimeout(() => {
+                try {
+                    // Check if the map container element exists
+                    const mapElement = document.getElementById('world-map');
+                    if (!mapElement) {
+                        console.error('地图容器元素不存在');
+                        return;
+                    }
+
+                    // Initialize the map on the "world-map" div with a given center and zoom
+                    const map = L.map('world-map').setView([20, 0], 2);
+
+                    // Add OpenStreetMap tiles
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors',
+                        maxZoom: 19
+                    }).addTo(map);
+
+                    // 添加一些标记示例
+                    L.marker([51.505, -0.09]).addTo(map)
+                        .bindPopup('伦敦')
+                        .openPopup();
+
+                    L.marker([40.7128, -74.0060]).addTo(map)
+                        .bindPopup('纽约');
+
+                    L.marker([35.6762, 139.6503]).addTo(map)
+                        .bindPopup('东京');
+                    
+                    // Sample school location data (you can replace this with actual data from your database)
+                    const schoolLocations = [
+                        {name: '美国学校', lat: 37.09, lng: -95.71, count: 79},
+                        {name: '中国学校', lat: 35.86, lng: 104.19, count: 15},
+                        {name: '英国学校', lat: 55.37, lng: -3.43, count: 73},
+                        {name: '日本学校', lat: 36.20, lng: 138.25, count: 10},
+                        {name: '韩国学校', lat: 35.90, lng: 127.76, count: 2},
+                        {name: '新加坡学校', lat: 1.35, lng: 103.86, count: 2},
+                        {name: '加拿大学校', lat: 56.13, lng: -106.34, count: 1},
+                        {name: '印度学校', lat: 20.59, lng: 78.96, count: 1},
+                        {name: '阿联酋学校', lat: 23.42, lng: 53.84, count: 1},
+                        {name: '瑞士学校', lat: 46.81, lng: 8.22, count: 1}
+                    ];
+
+                    // Add markers to the map for each school location
+                    schoolLocations.forEach(location => {
+                        const marker = L.marker([location.lat, location.lng]).addTo(map);
+                        
+                        // Create a popup with the school name and count
+                        const popupContent = `
+                            <div class="text-black">
+                                <h3 class="font-bold">${location.name}</h3>
+                                <p>学校数量: ${location.count}</p>
+                            </div>
+                        `;
+                        
+                        marker.bindPopup(popupContent);
+                    });
+
+                    // Ensure the map is properly rendered
+                    setTimeout(() => map.invalidateSize(), 100);
+                } catch (error) {
+                    console.error('地图初始化错误:', error);
+                    const mapElement = document.getElementById('world-map');
+                    if (mapElement) {
+                        mapElement.innerHTML = '<div class="flex items-center justify-center h-full text-red-500">地图加载失败，请检查浏览器控制台了解详细信息</div>';
+                    }
+                }
+            }, 500); // Wait 500ms before initializing the map
         }
 
 
